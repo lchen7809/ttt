@@ -91,8 +91,4 @@ exports.resetGame = (req, res) => {
   };
 
   res.json({ message: 'Game reset successfully', game: games[gameId] });
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> f56c045837062c164b2407cd09404998f6e3be64
