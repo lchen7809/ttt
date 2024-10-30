@@ -26,3 +26,65 @@ const checkWinner = (board) => {
   
     return null;
   };
+
+exports.createGame = (req, res) => {
+    const gameId = `game_${Date.now()}`;
+    games[gameId] = {
+      board: Array(3).fill(null).map(() => Array(3).fill(null)),
+      isXNext: true,
+      winner: null,
+      winningSquares: [],
+    };
+    res.json({ gameId });
+  };
+  
+  exports.makeMove = (req, res) => {
+    const { gameId, row, col } = req.body;
+    const game = games[gameId];
+  
+    if (!game || game.winner) {
+      return res.status(400).json({ message: 'Game not valid or game already ended' });
+    }
+  
+    if (game.board[row][col]) {
+      return res.status(400).json({ message: 'Cell already occupied' });
+    }
+  
+    game.board[row][col] = game.isXNext ? 'X' : 'O';
+    game.isXNext = !game.isXNext;
+  
+    const result = checkWinner(game.board);
+    if (result) {
+      game.winner = result.winner;
+      game.winningSquares = result.line;
+    }
+  
+    res.json({ board: game.board, isXNext: game.isXNext, winner: game.winner, winningSquares: game.winningSquares });
+  };
+  
+  exports.getGameState = (req, res) => {
+    const { gameId } = req.params;
+    const game = games[gameId];
+  
+    if (!game) {
+      return res.status(404).json({ message: 'Game not found' });
+    }
+  
+    res.json(game);
+  };
+  
+  exports.resetGame = (req, res) => {
+    const { gameId } = req.body;
+    if (!games[gameId]) {
+      return res.status(404).json({ message: 'Game not found' });
+    }
+  
+    games[gameId] = {
+      board: Array(3).fill(null).map(() => Array(3).fill(null)),
+      isXNext: true,
+      winner: null,
+      winningSquares: [],
+    };
+  
+    res.json({ message: 'Game reset successfully', game: games[gameId] });
+  };
