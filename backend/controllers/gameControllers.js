@@ -92,3 +92,24 @@ exports.resetGame = (req, res) => {
 
   res.json({ message: 'Game reset successfully', game: games[gameId] });
 };
+
+exports.getPastGames = (req, res) => {
+  const sql = `SELECT id, board, winner, winningSquares FROM games`;
+
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error('Error: Failed to retrieve past games:', err.message);
+      return res.send('Error: Failed to retrieve past games');
+    }
+
+    const games = rows.map(row => ({
+      gameId: row.id,
+      board: JSON.parse(row.board),
+      winner: row.winner,
+      winningSquares: JSON.parse(row.winningSquares),
+    }));
+
+    res.json(games);
+  });
+};
+
