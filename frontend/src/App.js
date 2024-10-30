@@ -24,8 +24,6 @@ const App = () => {
     const result = checkWinner(newSquares);
     if (result) {
       setWinner(result);
-      alert(`Player ${result} wins! Reset game to play again`);
-
     } else { //if no winner, continue
       setIsXNext(!isXNext);
       }
