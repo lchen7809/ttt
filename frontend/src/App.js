@@ -9,7 +9,12 @@ const App = () => {
   const [winner, setWinner] = useState(null);
 
   const handleSquareClick = (row, col) => {
-    if (squares[row][col]) return; 
+    if (squares[row][col] || winner) { //prevent further clicking
+      if (winner) {
+        alert(`Game end! Please reset the game`);
+      }
+      return;
+    }
     
     const newSquares = squares.map((r, i) => r.slice());
     newSquares[row][col] = isXNext ? 'X' : 'O'; //take turns X or O
@@ -19,6 +24,8 @@ const App = () => {
     const result = checkWinner(newSquares);
     if (result) {
       setWinner(result);
+      alert(`Player ${result} wins! Reset game to play again`);
+
     } else { //if no winner, continue
       setIsXNext(!isXNext);
       }
@@ -58,12 +65,22 @@ const App = () => {
     return null; 
   };
 
+  //reset game function
+  const resetGame = () => {
+    setSquares(Array(3).fill(null).map(() => Array(3).fill(null)));
+    setIsXNext(true);
+    setWinner(null);
+  };
+
   
   return (
     <div className="app">
       <h1>Tic-Tac-Toe</h1>
       ${winner}
       <Board squares={squares} onSquareClick={handleSquareClick} />
+      <div>
+      <button onClick={resetGame} style={{ marginTop: '50px' }}>Reset Game</button>
+      </div>
     </div>
   );
 };
