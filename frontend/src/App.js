@@ -19,7 +19,7 @@ const App = () => {
     const newSquares = squares.map((r, i) => r.slice());
     newSquares[row][col] = isXNext ? 'X' : 'O'; //take turns X or O
     setSquares(newSquares);
-    setIsXNext(!isXNext);
+    // setIsXNext(!isXNext);
 
     const result = checkWinner(newSquares);
     if (result) {
