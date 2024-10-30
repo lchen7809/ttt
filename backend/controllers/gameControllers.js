@@ -1,4 +1,6 @@
-let games = {};  
+// let games = {};  
+const db = require('../db');
+
 
 const checkWinner = (board) => {
   const lines = [
@@ -27,15 +29,28 @@ const checkWinner = (board) => {
 };
 
 exports.createGame = (req, res) => {
-  const gameId = `game_${Date.now()}`;
-  games[gameId] = {
-    board: Array(3).fill(null).map(() => Array(3).fill(null)),
-    isXNext: true,
-    winner: null,
-    winningSquares: [],
+    const gameId = `game_${Date.now()}`; //unique game id with time now 
+    const initialBoard = JSON.stringify(Array(3).fill(null).map(() => Array(3).fill(null)));
+    const isXNext = 1; 
+    const winner = null;
+    const winningSquares = JSON.stringify([]);
+  
+    //sql line to insert into games table
+    const sql = `
+      INSERT INTO games (id, board, isXNext, winner, winningSquares)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+  
+    db.run(sql, [gameId, initialBoard, isXNext, winner, winningSquares], (err) => {
+      if (err) {
+        console.error('Failed to create game:', err.message);
+        return res.status(500).send('Failed to create game');
+      }
+  
+      res.json({ gameId });
+    });
   };
-  res.json({ gameId });
-};
+  
 
 exports.makeMove = (req, res) => {
   const { gameId, row, col } = req.body;
