@@ -1,25 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import Board from './components/Board';
 
-function App() {
+const App = () => {
+  const [squares, setSquares] = useState(Array(3).fill(null).map(() => Array(3).fill(null)));
+
+  const handleSquareClick = (row, col) => {
+    const newSquares = squares.map((r, i) => r.slice());
+    newSquares[row][col] = 'X';
+    setSquares(newSquares);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <h1>Tic-Tac-Toe</h1>
+      <Board squares={squares} onSquareClick={handleSquareClick} />
     </div>
   );
-}
+};
 
 export default App;
