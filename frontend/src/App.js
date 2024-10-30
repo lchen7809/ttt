@@ -34,6 +34,14 @@ const App = () => {
       }
       return;
     }
+<<<<<<< HEAD
+=======
+    
+    const newSquares = squares.map((r, i) => r.slice());
+    newSquares[row][col] = isXNext ? 'X' : 'O'; //take turns X or O
+    setSquares(newSquares);
+    // setIsXNext(!isXNext);
+>>>>>>> f56c045837062c164b2407cd09404998f6e3be64
 
     try {
       const res = await fetch('http://localhost:5000/api/games/move', {
