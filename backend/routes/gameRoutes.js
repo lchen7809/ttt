@@ -1,5 +1,5 @@
 const express = require('express');
-const { createGame, makeMove, getGameState, resetGame } = require('../controllers/gameController');
+const { createGame, makeMove, getGameState, resetGame } = require('../controllers/gameControllers');
 
 const router = express.Router();
 
