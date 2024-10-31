@@ -1,11 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-tictactoe.db
 node_modules
 /.pnp
 .pnp.js
-tictactoe.db
 
 # testing
 /coverage
