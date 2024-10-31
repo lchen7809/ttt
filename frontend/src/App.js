@@ -81,9 +81,9 @@ const App = () => {
       }
   
       const data = await res.json();
-      setGameId(data.gameId); // Set the new game ID
-      resetBoard(); // Clear the board for a new game
-      setMessage(''); // Clear any previous error message
+      setGameId(data.gameId); 
+      resetBoard();
+      setMessage('');
     } catch (err) {
       console.error('Failed to reset the game:', err);
       setMessage(`Failed to reset the game: ${err.message}`);
