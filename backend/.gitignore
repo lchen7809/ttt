@@ -5,6 +5,7 @@ tictactoe.db
 node_modules
 /.pnp
 .pnp.js
+tictactoe.db
 
 # testing
 /coverage
