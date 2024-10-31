@@ -69,10 +69,9 @@ const App = () => {
 
   const resetGame = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/games/reset', {
+      const res = await fetch('http://localhost:5000/api/games/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameId }),
       });
   
       if (!res.ok) {
@@ -81,13 +80,16 @@ const App = () => {
         return;
       }
   
-      resetBoard(); 
-      setMessage('');  
+      const data = await res.json();
+      setGameId(data.gameId); // Set the new game ID
+      resetBoard(); // Clear the board for a new game
+      setMessage(''); // Clear any previous error message
     } catch (err) {
       console.error('Failed to reset the game:', err);
       setMessage(`Failed to reset the game: ${err.message}`);
     }
   };
+  
   
   const resetBoard = () => {
     setSquares(Array(3).fill(null).map(() => Array(3).fill(null)));
