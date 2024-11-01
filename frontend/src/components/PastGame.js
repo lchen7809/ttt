@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const PastGames = () => {
   const [pastGames, setPastGames] = useState([]);
-  const [selectedGame, setSelectedGame] = useState(null); 
-  const [message, setMessage] = useState(''); 
-
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [selectedGameIndex, setSelectedGameIndex] = useState(0);
+  const [highlightedGameIndex, setHighlightedGameIndex] = useState(null);
+  const gameRefs = useRef([]); 
   useEffect(() => {
     fetchPastGames();
   }, []);
@@ -12,21 +13,37 @@ const PastGames = () => {
   const fetchPastGames = async () => {
     try {
       const res = await fetch('http://localhost:5000/api/games/past-games');
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText);
-      }
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setPastGames(data);
-      setMessage('');
     } catch (err) {
-      console.error('Error: Failed to fetch past games:', err);
-      setMessage(`Error: Failed to fetch past games: ${err.message}`);
+      console.error('Failed to fetch past games:', err);
     }
   };
 
-  const handleGameClick = (game) => {
-    setSelectedGame(game); 
+  const handleGameClick = (game, index) => {
+    setSelectedGame(game);
+    setSelectedGameIndex(index + 1);
+    setHighlightedGameIndex(null); 
+    gameRefs.current[index]?.focus(); 
+
+
+  };
+
+  const handleKeyDown = (event, index) => {
+    let newIndex = index;
+
+    if (event.key === 'ArrowDown') {
+      newIndex = (index + 1) % pastGames.length;
+    } else if (event.key === 'ArrowUp') {
+      newIndex = (index - 1 + pastGames.length) % pastGames.length;
+    } else if (event.key === 'Enter') {
+      handleGameClick(pastGames[index], index);
+      return;
+    }
+
+    setHighlightedGameIndex(newIndex);
+    gameRefs.current[newIndex]?.focus(); 
   };
 
   const renderBoard = (board) => {
@@ -45,28 +62,51 @@ const PastGames = () => {
     }
   };
 
+
   return (
     <div>
       <h2>Past Games</h2>
-      {message && <p style={{ color: 'red' }}>{message}</p>}
-      
-      <ul>
-        {pastGames.map((game) => (
-          <li key={game.id} onClick={() => handleGameClick(game)}>
-            Game ID: {game.id} - Winner: {game.winner}
+
+      <ul
+        role="list"
+        aria-label="Past games hisotry list"
+        style={{ listStyleType: 'none' }}
+      >
+        {pastGames.map((game, index) => (
+          <li
+            key={game.id}
+            ref={(el) => (gameRefs.current[index] = el)} 
+            onClick={() => handleGameClick(game, index)}
+            tabIndex={0}
+            role="button"
+            aria-label={`Game ${index + 1}. Use arrow keys to navigate,  press Enter to view details.`}
+            style={{
+              padding: '8px',
+              marginBottom: '5px',
+              backgroundColor: index + 1 === selectedGameIndex ? '#d3d3d3' : 'transparent',
+              border: index === highlightedGameIndex ? '2px solid blue' : 'none',
+              cursor: 'pointer'
+            }}
+            onKeyDown={(event) => handleKeyDown(event, index)}
+          >
+            Game {index + 1} - Winner: {game.winner}
           </li>
         ))}
       </ul>
 
       {selectedGame && (
-        <div>
-          <h3>Game Details</h3>
-          <div>Game ID: {selectedGame.id}</div>
+        <div aria-live="polite" style={{ marginTop: '20px' }}>
+          <h3>Game {selectedGameIndex} Details</h3>
+          <div>Game ID: {selectedGameIndex}</div>
           <div>Winner: {selectedGame.winner}</div>
           <div>Board:</div>
-          {renderBoard(selectedGame.board)}
+          <div aria-hidden="true">
+            {renderBoard(selectedGame.board)}
+          </div>
         </div>
       )}
+
+
     </div>
   );
 };
