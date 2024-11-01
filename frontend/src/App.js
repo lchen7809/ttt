@@ -103,6 +103,12 @@ const App = () => {
 return (
   <div className="app">
     <h1>Tic-Tac-Toe</h1>
+    <p
+        aria-live="polite"
+        aria-label="Game introduction for screen readers"
+      >
+        Welcome to Accessible Tic-Tac-Toe. This is a two-player game. The game board is a 3 times 3 grid. Use the arrow keys to navigate the grid and press Enter to mark a cell. Player X goes first.
+      </p>
     {!showPastGames ? (
       <>
         Winner: ${winner}
