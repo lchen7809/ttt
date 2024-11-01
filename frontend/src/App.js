@@ -7,12 +7,11 @@ const App = () => {
   const [isXNext, setIsXNext] = useState(true);
   const [winner, setWinner] = useState(null);
   const [gameId, setGameId] = useState('');
-  const [message, setMessage] = useState('');
   const [showPastGames, setShowPastGames] = useState(false);
   const [selectedCell, setSelectedCell] = useState([0, 0]);
   const [endGameMessage, setEndGameMessage] = useState('');
-  const [introMessage, setIntroMessage] = useState('');
-  const [announceEndGame, setAnnounceEndGame] = useState(false);
+  const [introMessage, setIntroMessage] = useState('Welcome to Accessible Tic-Tac-Toe. Use arrow keys to navigate and Enter to mark your move. Player X goes first.');
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const isGameEnded = winner || endGameMessage.includes("draw");
 
@@ -22,17 +21,18 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (showPastGames) return;
+    const handleUserInteraction = () => setHasInteracted(true);
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('keydown', handleUserInteraction);
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+    };
+  }, []);
 
-      if (isGameEnded) {
-        if (event.key === 'G' || event.key === 'g') {
-          resetGame();
-        } else if (event.key === 'P' || event.key === 'p') {
-          setShowPastGames(true);
-        }
-        return;
-      }
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (showPastGames || isGameEnded) return;
 
       let [row, col] = selectedCell;
       switch (event.key) {
@@ -83,28 +83,21 @@ const App = () => {
       const data = await res.json();
       setSquares(data.board);
       setIsXNext(data.isXNext);
-      setMessage('');
-      
+
       if (data.winner) {
         setWinner(data.winner);
         triggerEndGameAnnouncement(`Player ${data.winner} wins! Press "G" to start a new game or "P" to view past games.`);
       } else if (data.board.every(row => row.every(cell => cell !== null))) {
-        setWinner(null); 
+        setWinner(null);
         triggerEndGameAnnouncement(`It's a draw! Press "G" to start a new game or "P" to view past games.`);
       }
-
     } catch (err) {
       console.error('Failed to make a move:', err);
-      setMessage(`Failed to make a move: ${err.message}`);
     }
   };
 
   const triggerEndGameAnnouncement = (announcement) => {
-    setAnnounceEndGame(false);
-    setTimeout(() => {
-      setEndGameMessage(announcement);
-      setAnnounceEndGame(true);
-    }, 50); 
+    setEndGameMessage(announcement);
   };
 
   const resetGame = async () => {
@@ -116,10 +109,8 @@ const App = () => {
       const data = await res.json();
       setGameId(data.gameId);
       resetBoard();
-      setMessage('');
     } catch (err) {
       console.error('Failed to reset the game:', err);
-      setMessage(`Failed to reset the game: ${err.message}`);
     }
   };
 
@@ -129,19 +120,16 @@ const App = () => {
     setWinner(null);
     setSelectedCell([0, 0]);
     setEndGameMessage('');
-    setAnnounceEndGame(false);
   };
 
   return (
     <div className="app">
       <h1>Tic-Tac-Toe</h1>
-      {introMessage && (
-        <p aria-live="polite" role="status">{introMessage}</p>
-      )}
+      <p aria-live="polite" role="status">{introMessage}</p>
       {!showPastGames ? (
         <>
           <p>{winner ? `Winner: ${winner}` : `Next player: ${isXNext ? 'X' : 'O'}`}</p>
-          <Board squares={squares} onSquareClick={handleSquareClick} selectedCell={selectedCell} />
+          <Board squares={squares} onSquareClick={handleSquareClick} selectedCell={selectedCell} hasInteracted={hasInteracted} />
           <button onClick={resetGame} style={{ marginTop: '20px' }}>Reset Game</button>
           <button onClick={() => setShowPastGames(true)}>View Past Games</button>
         </>
@@ -152,7 +140,7 @@ const App = () => {
         </>
       )}
       
-      {announceEndGame && (
+      {endGameMessage && (
         <div aria-live="assertive" role="status" style={{ marginTop: '20px' }}>
           <p>{endGameMessage}</p>
         </div>
