@@ -4,28 +4,37 @@ import PastGames from './components/PastGame';
 
 const App = () => {
   const [squares, setSquares] = useState(Array(3).fill(null).map(() => Array(3).fill(null)));
-
   const [isXNext, setIsXNext] = useState(true);
-
   const [winner, setWinner] = useState(null);
-
   const [gameId, setGameId] = useState('');
-
   const [message, setMessage] = useState('');
-
   const [showPastGames, setShowPastGames] = useState(false);
-  
   const [selectedCell, setSelectedCell] = useState([0, 0]);
+  const [endGameMessage, setEndGameMessage] = useState('');
+  const [introMessage, setIntroMessage] = useState('');
+  const [announceEndGame, setAnnounceEndGame] = useState(false);
+
+  const isGameEnded = winner || endGameMessage.includes("draw");
 
   useEffect(() => {
+    setIntroMessage("Welcome to Accessible Tic-Tac-Toe. Use arrow keys to navigate and Enter to mark your move. Player X goes first.");
     createGame();
   }, []);
 
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if (winner || showPastGames) return;
-      let [row, col] = selectedCell;
+      if (showPastGames) return;
 
+      if (isGameEnded) {
+        if (event.key === 'G' || event.key === 'g') {
+          resetGame();
+        } else if (event.key === 'P' || event.key === 'p') {
+          setShowPastGames(true);
+        }
+        return;
+      }
+
+      let [row, col] = selectedCell;
       switch (event.key) {
         case 'ArrowUp':
           row = row > 0 ? row - 1 : 2;
@@ -50,7 +59,7 @@ const App = () => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [selectedCell, winner, showPastGames]);
+  }, [selectedCell, isGameEnded, showPastGames]);
 
   const createGame = async () => {
     try {
@@ -64,10 +73,7 @@ const App = () => {
   };
 
   const handleSquareClick = async (row, col) => {
-    if (squares[row][col] || winner) {
-      if (winner) alert(`Game end. Please reset the game.`);
-      return;
-    }
+    if (squares[row][col] || isGameEnded) return;
     try {
       const res = await fetch('http://localhost:5000/api/games/move', {
         method: 'POST',
@@ -78,11 +84,27 @@ const App = () => {
       setSquares(data.board);
       setIsXNext(data.isXNext);
       setMessage('');
-      if (data.winner) setWinner(data.winner);
+      
+      if (data.winner) {
+        setWinner(data.winner);
+        triggerEndGameAnnouncement(`Player ${data.winner} wins! Press "G" to start a new game or "P" to view past games.`);
+      } else if (data.board.every(row => row.every(cell => cell !== null))) {
+        setWinner(null); 
+        triggerEndGameAnnouncement(`It's a draw! Press "G" to start a new game or "P" to view past games.`);
+      }
+
     } catch (err) {
       console.error('Failed to make a move:', err);
       setMessage(`Failed to make a move: ${err.message}`);
     }
+  };
+
+  const triggerEndGameAnnouncement = (announcement) => {
+    setAnnounceEndGame(false);
+    setTimeout(() => {
+      setEndGameMessage(announcement);
+      setAnnounceEndGame(true);
+    }, 50); 
   };
 
   const resetGame = async () => {
@@ -106,19 +128,21 @@ const App = () => {
     setIsXNext(true);
     setWinner(null);
     setSelectedCell([0, 0]);
+    setEndGameMessage('');
+    setAnnounceEndGame(false);
   };
 
   return (
     <div className="app">
       <h1>Tic-Tac-Toe</h1>
-      <p aria-live="polite">
-        Welcome to Accessible Tic-Tac-Toe. The game board is a 3 times 3 grid. Use arrow keys to navigate and Enter put an X or O.
-      </p>
+      {introMessage && (
+        <p aria-live="polite" role="status">{introMessage}</p>
+      )}
       {!showPastGames ? (
         <>
           <p>{winner ? `Winner: ${winner}` : `Next player: ${isXNext ? 'X' : 'O'}`}</p>
           <Board squares={squares} onSquareClick={handleSquareClick} selectedCell={selectedCell} />
-          <button onClick={resetGame} style={{ marginTop: '50px' }}>Reset Game</button>
+          <button onClick={resetGame} style={{ marginTop: '20px' }}>Reset Game</button>
           <button onClick={() => setShowPastGames(true)}>View Past Games</button>
         </>
       ) : (
@@ -126,6 +150,12 @@ const App = () => {
           <PastGames />
           <button onClick={() => setShowPastGames(false)}>Back to Game</button>
         </>
+      )}
+      
+      {announceEndGame && (
+        <div aria-live="assertive" role="status" style={{ marginTop: '20px' }}>
+          <p>{endGameMessage}</p>
+        </div>
       )}
     </div>
   );

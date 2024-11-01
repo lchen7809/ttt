@@ -1,15 +1,18 @@
 import React from 'react';
 
-const Square = ({ value, onClick, highlighted }) => {
+const Square = ({ value, onClick, isSelected, row, col }) => {
   return (
     <button
+      className={`square ${isSelected ? 'selected' : ''}`}
       onClick={onClick}
+      role="gridcell"
+      aria-selected={isSelected}
+      tabIndex={isSelected ? 0 : -1}
+    //   aria-label={`Row ${row + 1}, Column ${col + 1}, ${value || 'empty'}`}
       style={{
-        width: '50px',
-        height: '50px',
-        margin: '5px',
-        fontSize: '24px',
-        backgroundColor: highlighted ? '#add8e6' : '#fff', // Light blue for highlighted
+        backgroundColor: isSelected ? '#d3d3f3' : 'transparent', 
+        width: 50,
+        height: 50,
       }}
     >
       {value || '-'}
