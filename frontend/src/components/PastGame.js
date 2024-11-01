@@ -5,6 +5,7 @@ const PastGames = () => {
   const [selectedGame, setSelectedGame] = useState(null);
   const [selectedGameIndex, setSelectedGameIndex] = useState(0);
   const [highlightedGameIndex, setHighlightedGameIndex] = useState(null);
+  const [screenReaderAnnouncement, setScreenReaderAnnouncement] = useState(''); 
   const gameRefs = useRef([]); 
   useEffect(() => {
     fetchPastGames();
@@ -27,7 +28,11 @@ const PastGames = () => {
     setHighlightedGameIndex(null); 
     gameRefs.current[index]?.focus(); 
 
-
+    const announcement = `
+      Game ${index + 1}, Winner: ${game.winner || 'No winner'},
+      Board: ${renderBoardForScreenReader(game.board)}
+    `;
+    setScreenReaderAnnouncement(announcement);
   };
 
   const handleKeyDown = (event, index) => {
@@ -62,6 +67,17 @@ const PastGames = () => {
     }
   };
 
+  const renderBoardForScreenReader = (board) => {
+    try {
+      const parsedBoard = Array.isArray(board) ? board : JSON.parse(board);
+      return parsedBoard.map((row, rowIndex) =>
+        row.map((cell, colIndex) => `Row ${rowIndex + 1}, Column ${colIndex + 1}: ${cell || 'empty'}`).join(', ')
+      ).join(', ');
+    } catch (error) {
+      console.error('Failed to parse board:', error.message);
+      return 'Error reading board';
+    }
+  };
 
   return (
     <div>
@@ -69,7 +85,7 @@ const PastGames = () => {
 
       <ul
         role="list"
-        aria-label="Past games hisotry list"
+        aria-label="Past games list"
         style={{ listStyleType: 'none' }}
       >
         {pastGames.map((game, index) => (
@@ -106,7 +122,9 @@ const PastGames = () => {
         </div>
       )}
 
-
+      <div className="sr-only" aria-live="assertive" role="alert" style={{ position: 'absolute', left: '-9999px' }}>
+        {screenReaderAnnouncement}
+      </div>
     </div>
   );
 };
