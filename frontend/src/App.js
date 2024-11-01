@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Board from './components/Board';
+import PastGames from './components/PastGame';
 
 const App = () => {
   const [squares, setSquares] = useState(Array(3).fill(null).map(() => Array(3).fill(null)));
@@ -11,6 +12,8 @@ const App = () => {
   const [gameId, setGameId] = useState('');
 
   const [message, setMessage] = useState('');
+
+  const [showPastGames, setShowPastGames] = useState(false);
 
   useEffect(() => {
     createGame();
@@ -97,16 +100,26 @@ const App = () => {
     setWinner(null);
   };
   
-  return (
-    <div className="app">
-      <h1>Tic-Tac-Toe</h1>
-      Winner: ${winner}
-      <Board squares={squares} onSquareClick={handleSquareClick} />
-      <div>
-      <button onClick={resetGame} style={{ marginTop: '50px' }}>Reset Game</button>
-      </div>
-    </div>
-  );
+return (
+  <div className="app">
+    <h1>Tic-Tac-Toe</h1>
+    {!showPastGames ? (
+      <>
+        Winner: ${winner}
+        <Board squares={squares} onSquareClick={handleSquareClick} />
+        <div>
+        <button onClick={resetGame} style={{ marginTop: '50px' }}>Reset Game</button>
+        </div>
+        <button onClick={() => setShowPastGames(true)}>View Past Games</button>
+      </>
+    ) : (
+      <>
+        <PastGames />
+        <button onClick={() => setShowPastGames(false)}>Back to Game</button>
+      </>
+    )}
+  </div>
+);
 };
 
 export default App;

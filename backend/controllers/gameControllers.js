@@ -1,4 +1,4 @@
-// let games = {};  
+// let games = {};
 const db = require('../db');
 
 
@@ -42,8 +42,8 @@ exports.createGame = (req, res) => {
   
     db.run(sql, [gameId, initialBoard, isXNext, winner, winningSquares], (err) => {
       if (err) {
-        console.error('Failed to create game:', err.message);
-        return res.status(500).send('Failed to create game');
+        console.error('Error: Failed to create game:', err.message);
+        return res.send('Error: Failed to create game');
       }
   
       res.json({ gameId });
@@ -54,37 +54,37 @@ exports.createGame = (req, res) => {
     const { gameId, row, col } = req.body;
   
     if (row < 0 || row > 2 || col < 0 || col > 2) {
-      return res.status(400).send('Invalid move: Out of bounds');
+      return res.send('Invalid move: Out of bounds');
     }
   
     db.get(`SELECT * FROM games WHERE id = ?`, [gameId], (err, rowData) => {
       if (err) {
-        console.error('Failed to retrieve game:', err.message);
-        return res.status(500).send('Failed to retrieve game');
+        console.error('Error: Failed to retrieve game:', err.message);
+        return res.send('Error: Failed to retrieve game');
       }
   
       if (!rowData) {
-        return res.status(404).send('Game not found');
+        return res.send('Game not found');
       }
   
       let board;
       try {
         board = JSON.parse(rowData.board); 
       } catch (error) {
-        console.error('Failed to parse board:', error.message);
-        return res.status(500).send('Failed to parse board');
+        console.error('Error: Failed to parse board:', error.message);
+        return res.send('Error: Failed to parse board');
       }
   
       if (!Array.isArray(board) || board.length !== 3 || !board.every(row => Array.isArray(row) && row.length === 3)) {
-        console.error('Invalid board format');
-        return res.status(500).send('Invalid board format');
+        console.error('Error: Invalid board format');
+        return res.send('Error: Invalid board format');
       }
   
       let isXNext = rowData.isXNext;
       let winner = rowData.winner;
   
       if (board[row][col] || winner) {
-        return res.status(400).send('Cell already occupied or game already ended');
+        return res.send('Error: Cell already occupied or game already ended');
       }
   
       board[row][col] = isXNext ? 'X' : 'O';
@@ -103,8 +103,8 @@ exports.createGame = (req, res) => {
   
       db.run(sql, [JSON.stringify(board), isXNext, winner, JSON.stringify(result ? result.line : []), gameId], (err) => {
         if (err) {
-          console.error('Failed to update game:', err.message);
-          return res.status(500).send('Failed to update game');
+          console.error('Error: Failed to update game:', err.message);
+          return res.send('Error: Failed to update game');
         }
   
         res.json({
@@ -118,17 +118,32 @@ exports.createGame = (req, res) => {
   };
   
   
-exports.getGameState = (req, res) => {
-  const { gameId } = req.params;
-  const game = games[gameId];
-
-  if (!game) {
-    return res.send('Error: Game not found');
-  }
-
-  res.json(game);
-};
-
+  exports.getGameState = (req, res) => {
+    const { gameId } = req.params;
+  
+    const sql = `SELECT * FROM games WHERE id = ?`;
+    db.get(sql, [gameId], (err, row) => {
+      if (err) {
+        console.error('Error retrieving game:', err.message);
+        return res.send('Error retrieving game');
+      }
+  
+      if (!row) {
+        return res.send('Game not found');
+      }
+  
+      try {
+        row.board = JSON.parse(row.board);
+        row.winningSquares = JSON.parse(row.winningSquares);
+      } catch (parseError) {
+        console.error('Error parsing game data:', parseError.message);
+        return res.send('Error parsing game data');
+      }
+  
+      res.json(row);
+    });
+  };
+  
 
 exports.resetGame = (req, res) => {
     const { gameId } = req.body;
@@ -162,6 +177,23 @@ exports.resetGame = (req, res) => {
   
         res.json({ message: 'Game reset successfully', gameId });
       });
+    });
+  };
+
+  exports.getPastGames = (req, res) => {
+    const sql = `SELECT id, board, winner FROM games WHERE winner IS NOT NULL`;
+    
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        console.error('Error: Failed to fetch past games:', err.message);
+        return res.send('Error: Failed to fetch past games');
+      }
+  
+      if (!rows || rows.length === 0) {
+        return res.send('Error: No past games found');
+      }
+  
+      res.json(rows);
     });
   };
   
