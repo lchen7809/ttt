@@ -33,15 +33,20 @@ const Board = ({ squares, onSquareClick, selectedCell }) => {
   };
 
   return (
-    <div>
+    <div
+      aria-hidden="true" 
+      style={{ outline: 'none' }}
+    >
       {squares.map((row, rowIndex) => (
-        <div key={rowIndex} className="board-row">
+        <div key={rowIndex} className="board-row" aria-hidden="true">
           {row.map((square, colIndex) => (
             <Square
               key={colIndex}
               value={square}
               onClick={() => onSquareClick(rowIndex, colIndex)}
               isSelected={selectedCell[0] === rowIndex && selectedCell[1] === colIndex}
+              aria-hidden="true" 
+              tabIndex="-1" 
             />
           ))}
         </div>
