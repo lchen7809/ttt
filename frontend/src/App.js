@@ -12,7 +12,7 @@ const App = () => {
   const [showPastGames, setShowPastGames] = useState(false);
   const [selectedCell, setSelectedCell] = useState([0, 0]);
   const [endGameMessage, setEndGameMessage] = useState('');
-  const [introMessage, setIntroMessage] = useState('Welcome to Accessible Tic-Tac-Toe. Use arrow keys to navigate and Enter to mark your move. Player X goes first.');
+  const [introMessage, setIntroMessage] = useState('Welcome to Accessible Tic Tac Toe. Use arrow keys to navigate and Enter to mark your move. Player X goes first.');
   const [announceEndGame, setAnnounceEndGame] = useState(false);
 
   const isGameEnded = winner || endGameMessage.includes("draw");
@@ -21,7 +21,6 @@ const App = () => {
     createGame();
   }, []);
 
-  // Accessibility and movement handler
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (showPastGames) return;
@@ -160,7 +159,7 @@ const App = () => {
               className="status-text"
               tabIndex="0"
             >
-              {winner ? `Winner: ${winner}` : `Next player: ${isXNext ? 'X' : 'O'}`}
+              {winner ? `Winner is ${winner}` : `Next player ${isXNext ? 'X' : 'O'}`}
             </p>
             <Board squares={squares} onSquareClick={handleSquareClick} selectedCell={selectedCell} />
             <button

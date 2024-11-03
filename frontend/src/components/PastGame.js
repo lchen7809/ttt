@@ -27,16 +27,13 @@ const PastGames = () => {
   const handleGameClick = (game, index) => {
     setSelectedGame(game);
     setSelectedGameIndex(index + 1);
-    setHighlightedGameIndex(null);
-    gameRefs.current[index]?.focus();
-
-    const announcement = `
-      Game ${index + 1}, Winner: ${game.winner || 'No winner'},
-      Board: ${renderBoardForScreenReader(game.board)}
-    `;
+    setHighlightedGameIndex(null); 
+    gameRefs.current[index]?.focus(); 
+  
+    const announcement = `Game ${index + 1}. Winner is ${game.winner || 'no winner'}. Board: ${renderBoardForScreenReader(game.board)}`;
     setScreenReaderAnnouncement(announcement);
   };
-
+  
   const handleKeyDown = (event, index) => {
     let newIndex = index;
 
@@ -74,21 +71,17 @@ const PastGames = () => {
   const renderBoardForScreenReader = (board) => {
     try {
       const parsedBoard = Array.isArray(board) ? board : JSON.parse(board);
-      return parsedBoard
-        .map((row, rowIndex) =>
-          row
-            .map(
-              (cell, colIndex) =>
-                `Row ${rowIndex + 1}, Column ${colIndex + 1}: ${cell || 'empty'}`
-            )
-            .join(', ')
-        )
-        .join(', ');
+      return parsedBoard.map((row, rowIndex) =>
+        row.map((cell, colIndex) => `Row ${rowIndex + 1} Column ${colIndex + 1} is ${cell || 'empty'}`)
+          .join(' ')
+      ).join('. ');
     } catch (error) {
       console.error('Failed to parse board:', error.message);
       return 'Error reading board';
     }
   };
+  
+  
 
   return (
     <div className="past-games-container">
