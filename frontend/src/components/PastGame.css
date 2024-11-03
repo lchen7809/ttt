@@ -1,0 +1,87 @@
+.past-games-container {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #333;
+  }
+  
+  .past-games-header {
+    font-size: 1.8rem;
+    color: #1565c0;
+    margin-bottom: 1rem;
+  }
+  
+  .past-games-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .past-game-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  .past-game-item.selected {
+    background-color: #d3d3d3;
+  }
+  
+  .past-game-item:focus {
+    outline: none;
+    border: 2px solid #1565c0;
+  }
+  
+  .past-game-item.highlighted {
+    border: 2px solid #1565c0;
+  }
+  
+  .past-game-details {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #e3f2fd;
+    border-radius: 4px;
+  }
+  
+  .past-game-details h3 {
+    color: #1565c0;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .past-game-details .board {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+  }
+  
+  .past-game-details .board-row {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .past-game-details .cell {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+    margin: 4px;
+    border: 1px solid #b0bec5;
+    border-radius: 4px;
+    color: #333;
+    font-size: 1.25rem;
+  }
+  
+  .sr-only {
+    position: absolute;
+    left: -9999px;
+  }
+  

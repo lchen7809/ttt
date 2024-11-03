@@ -1,17 +1,23 @@
-//individual square components, exported to Board component
 import React from 'react';
 
-const Square = ({ value, onClick }) => {
-    console.log(value);
-    return (
-        <button
-        className="square"
-        onClick={onClick}
-        style={{ width: '50px', height: '50px', fontSize: '20px' }}
-        >
-        {value}
-        </button>
-    );
+const Square = ({ value, onClick, isSelected, row, col }) => {
+  return (
+    <button
+      className={`square ${isSelected ? 'selected' : ''}`}
+      onClick={onClick}
+      role="gridcell"
+      aria-selected={isSelected}
+      tabIndex={isSelected ? 0 : -1}
+    //   aria-label={`Row ${row + 1}, Column ${col + 1}, ${value || 'empty'}`}
+      style={{
+        backgroundColor: isSelected ? '#d3d3f3' : 'transparent', 
+        width: 50,
+        height: 50,
+      }}
+    >
+      {value || '-'}
+    </button>
+  );
 };
 
 export default Square;
