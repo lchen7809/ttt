@@ -90,16 +90,13 @@ const App = () => {
         triggerEndGameAnnouncement(`Player ${data.winner} wins! Press "G" to start a new game or "P" to view past games.`);
       } else if (data.board.every(row => row.every(cell => cell !== null))) {
         setWinner(null); 
-        triggerEndGameAnnouncement(`It's a draw! Press "G" to start a new game or "P" to view past games.`);
+        triggerEndGameAnnouncement(`It's a draw! Press "NVDA Modifier Key + G" to start a new game or "P" to view past games.`);
       }
     } catch (err) {
       console.error('Failed to make a move:', err);
       setMessage(`Failed to make a move: ${err.message}`);
     }
   };
-<<<<<<< HEAD
-  
-=======
 
   const triggerEndGameAnnouncement = (announcement) => {
     setAnnounceEndGame(false);
@@ -109,7 +106,6 @@ const App = () => {
     }, 50); 
   };
 
->>>>>>> 0f019484536971bd513df7620cd80f3749a57b94
   const resetGame = async () => {
     try {
       const res = await fetch('http://localhost:5000/api/games/create', {
@@ -125,10 +121,6 @@ const App = () => {
       setMessage(`Failed to reset the game: ${err.message}`);
     }
   };
-<<<<<<< HEAD
-  
-=======
->>>>>>> 0f019484536971bd513df7620cd80f3749a57b94
 
   const resetBoard = () => {
     setSquares(Array(3).fill(null).map(() => Array(3).fill(null)));
